@@ -4,20 +4,20 @@
 // @require 	 -
 // @version      1.0
 // @match        https://*.roamresearch.com
-// @description  Handle PDF Highlights.  
-//		 MAIN OUTPUT MODES: 
+// @description  Handle PDF Highlights.
+//		 MAIN OUTPUT MODES:
 //		 1) cousin
-//		 Highlights are added as the cousin block. 
+//		 Highlights are added as the cousin block.
 //       The breadCrumbAttribute & citeKeyAttribute are searched for in the PDF grand parent subtree
-//		 - PDF grand parent block 
-//		    - PDF parent block 
+//		 - PDF grand parent block
+//		    - PDF parent block
 //			   - PDF block, e.g., {{pdf: https://firebasestorage.googleapis.com/v0/b/exampleurl}}
-//		    - Highlight 
+//		    - Highlight
 //		       - Cousin of the PDF block
 //		 2) child
 //		 Highlights are added as the child block:
 //       The breadCrumbAttribute & citeKeyAttribute are searched for in the PDF parent subtree
-//		 - PDF parent block 
+//		 - PDF parent block
 //			- PDF block
 //		       - Child of the PDF block
 /*******************************************************/
@@ -59,10 +59,10 @@ function startC3PdfExtension() {
         try {
           if (new URL(iframe.src).pathname.endsWith('.pdf')) {
             const originalPdfUrl = iframe.src; //the permanent pdfId
-            iframe.id = "pdf-" + iframe.closest('.roam-block').id; //window level pdfId          
+            iframe.id = "pdf-" + iframe.closest('.roam-block').id; //window level pdfId
             const pdfBlockUid = c3u.getUidOfContainingBlock(iframe); //for click purpose
             allPdfIframes.push(iframe); //save for interaction
-            renderPdf(iframe); //render pdf through the server 
+            renderPdf(iframe); //render pdf through the server
             sendHighlights(iframe, originalPdfUrl, pdfBlockUid);
           }
         } catch { } // some iframes have invalid src
@@ -73,7 +73,7 @@ function startC3PdfExtension() {
     })
     activateButtons();
   }
-  ///////////////Responsive PDF Iframe 
+  ///////////////Responsive PDF Iframe
   function adjustPdfIframe(iframe) {
     const reactParent = iframe.closest('.react-resizable')
     const reactHandle = reactParent.querySelector(".react-resizable-handle")
@@ -108,16 +108,16 @@ function startC3PdfExtension() {
       .forEach(async function (btn) {
         const match = btn.id.match(/main-hlBtn-(.........)/)
         if (match) {
-          if (c3u.existBlockUid(match[1])) {//If the data page was deleted ignore 
-            await c3u.sleep(3000) //Maybe someone is moving blocks or undo                  
+          if (c3u.existBlockUid(match[1])) {//If the data page was deleted ignore
+            await c3u.sleep(3000) //Maybe someone is moving blocks or undo
             if (!c3u.existBlockUid(c3u.blockString(match[1]))) {
-              //Delete the date row                
+              //Delete the date row
               const hlDataRowUid = match[1];
               const hlDataRow = c3u.queryAllTxtInChildren(hlDataRowUid);
               const toDeleteHighlight = getHighlight(hlDataRow[0][0]);
               const dataTableUid = c3u.parentBlockUid(hlDataRowUid);
               c3u.deleteBlock(hlDataRowUid)
-              //Delete the hl on pdf (send message to render)            
+              //Delete the hl on pdf (send message to render)
               const dataPageUid = c3u.parentBlockUid(dataTableUid);
               const pdfUrl = encodePdfUrl(c3u.blockString(c3u.getNthChildUid(dataPageUid, 0)));
               Array.from(document.getElementsByTagName('iframe'))
@@ -146,7 +146,7 @@ function startC3PdfExtension() {
             const res = c3u.allChildrenInfo(tableUid)[0][0];
             c3u.deletePage(pdfDataPageUid)
             res.children.map(async function (child) {
-              //You can check their existence but seems redundent. 
+              //You can check their existence but seems redundent.
               c3u.deleteBlock(child.string);
             });
           }
@@ -289,7 +289,7 @@ function startC3PdfExtension() {
     return hls.map(function (x) { return getHighlight(x); }).filter(hl => hl != null);
   }
 
-  function getHighlight(hl) { //the column order is: (hlUid, hlInfo(pos, color), hlTxt)  
+  function getHighlight(hl) { //the column order is: (hlUid, hlInfo(pos, color), hlTxt)
     //Extracting Text
     const hlText = hl.children[0].children[0].string;
     //Extracting Info = (position, color)
@@ -317,7 +317,7 @@ function startC3PdfExtension() {
     e.stopPropagation();
     e.stopImmediatePropagation();
     let iframe = getOpenIframeElementWithSrc(pdfInfo.url);
-    if (!iframe) { //Iframe is closed      
+    if (!iframe) { //Iframe is closed
       c3u.openBlockInSidebar('block', pdfInfo.uid)
       await c3u.sleep(3000);
       iframe = getOpenIframeElementWithSrc(pdfInfo.url);
@@ -332,7 +332,7 @@ function startC3PdfExtension() {
 
   function handleBtn(btn, pdfInfo, hlInfo, highlight) {
     const blockUid = c3u.getUidOfContainingBlock(btn);
-    //Shared for main and reference jump btns 
+    //Shared for main and reference jump btns
     const extraClass = 'btn-' + hlInfo.type + '-annotation'
     btn.classList.add(extraClass, 'btn', 'btn-default', 'btn-pdf-activated');
     const btnId = getHighlightDataBlockUid(hlInfo.uid);
@@ -350,7 +350,7 @@ function startC3PdfExtension() {
       //Fix footnote btn if exists
       const footnote = wrapperSpan.closest('span').querySelector('.rm-block__ref-count-footnote')
       footnote?.classList.add('popup');
-      //Add replace with text and alias btns      
+      //Add replace with text and alias btns
 
       let btnRepText = null, btnRepAlias = null;
       if (pdfParams.textChar !== '') {
@@ -394,7 +394,7 @@ function startC3PdfExtension() {
     btnBlock.firstChild.setAttribute("title", pdf2attr[pdfUid] + "/Pg" + pageNumber);
     btnBlock.firstChild.classList.add("breadCrumb");
   }
-  ////////////////////Search the sub-tree of HL/PDF's 
+  ////////////////////Search the sub-tree of HL/PDF's
   ////////////////////shared parents for the meta info
   function findPDFAttribute(pdfUid, attribute) {
     let gParentRef;
@@ -405,11 +405,11 @@ function startC3PdfExtension() {
     else //child mode
       gParentRef = pdfUid; //parentBlockUid(pdfUid);
 
-    let ancestorrule = `[ 
-                   [ (ancestor ?b ?a) 
-                        [?a :block/children ?b] ] 
-                   [ (ancestor ?b ?a) 
-                        [?parent :block/children ?b ] 
+    let ancestorrule = `[
+                   [ (ancestor ?b ?a)
+                        [?a :block/children ?b] ]
+                   [ (ancestor ?b ?a)
+                        [?parent :block/children ?b ]
                         (ancestor ?parent ?a) ] ] ]`;
 
     const res = window.roamAlphaAPI.q(
@@ -440,7 +440,7 @@ function startC3PdfExtension() {
     const hlText = hl.substring(0, match.index);
     const hlAlias = hlText + "[*](((" + hlBlockUid + ")))";
 
-    //Search for what to replace 
+    //Search for what to replace
     const blockTxt = c3u.blockString(btnBlockUid);
     const re = new RegExp("\\(\\(" + hlBlockUid + "\\)\\)", "g");
     let newBlockTxt;
@@ -451,7 +451,7 @@ function startC3PdfExtension() {
       newBlockTxt = blockTxt.replace(re, hlAlias)
 
     c3u.updateBlockString(btnBlockUid, newBlockTxt)
-    
+
     const toRemoveSpans = btn.closest('.rm-block__input').querySelectorAll('.displacedBtns')
     toRemoveSpans.forEach(item => item.remove())
   }
@@ -463,7 +463,7 @@ function startC3PdfExtension() {
   /************Handle New HL Received BEGIN***************/
   window.addEventListener('message', handleRecievedMessage, false);
 
-  ///////////Recieve Highlight Data, Output Highlight Text, Store HL Data 
+  ///////////Recieve Highlight Data, Output Highlight Text, Store HL Data
   function handleRecievedMessage(event) {
     switch (event.data.actionType) {
       case 'added':
@@ -607,7 +607,7 @@ function startC3PdfExtension() {
     c3u.deleteBlock(toDeleteHlDataRowUid)
   }
 
-  ///////////For the Cousin Output Mode: Find the Uncle of the PDF Block. 
+  ///////////For the Cousin Output Mode: Find the Uncle of the PDF Block.
   function getUncleBlock(pdfBlockUid) {
     const pdfParentBlockUid = c3u.parentBlockUid(pdfBlockUid);
     const gParentBlockUid = c3u.parentBlockUid(pdfParentBlockUid);
@@ -664,8 +664,6 @@ function startC3PdfExtension() {
     //What to put in clipboard
     if (pdfParams.copyBlockRef)
       navigator.clipboard.writeText("((" + hlTextUid + "))");
-    else
-      navigator.clipboard.writeText(hlContent);
   }
 
   ///////////Save Annotations in the PDF Data Page in a Table
