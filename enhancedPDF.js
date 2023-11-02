@@ -72,7 +72,6 @@ function startC3PdfExtension() {
         adjustPdfIframe(iframe);
       }
     });
-    activateButtons();
   }
   ///////////////Responsive PDF Iframe
   function adjustPdfIframe(iframe) {
@@ -179,19 +178,6 @@ function startC3PdfExtension() {
   }, 1000);
   /*************Look for Highlight Delete END***********/
   /*****************************************************/
-
-  /*******************************************************/
-  /**************Button Activation BEGIN******************/
-  /*****Fixing Highlight Btns Appearance and Functions****/
-  function activateButtons() {
-    Array.from(document.getElementsByTagName('button'))
-      .filter(isUnObservedHighlightBtn)
-      .forEach(btn => {
-        if (!btn.closest('.rm-zoom-item')) hlBtnAppearsObserver.observe(btn);
-        btn.classList.add('btn-observed');
-      });
-    activateSortButtons();
-  }
 
   function activateSortButtons() {
     Array.from(document.getElementsByTagName('button'))
