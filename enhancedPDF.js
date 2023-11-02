@@ -230,25 +230,6 @@ function startC3PdfExtension() {
         }
       });
   }
-  let options = {
-    root: document.querySelector('.roam-app'),
-    rootMargin: '0px 0px 500px 0px',
-    threshold: 1.0,
-  };
-
-  function activateBtnCallback(e) {
-    const btn = e.target;
-    const hlInfo = getHlInfoFromBtn(btn);
-    const highlight = getSingleHighlight(hlInfo.uid);
-    let pdfInfo = getPdfInfoFromHighlight(hlInfo.uid);
-    if (pdfInfo) {
-      const btnBlock = btn.closest('.rm-block__input');
-      const page = btn.innerText;
-      addBreadcrumb(btnBlock, page, pdfInfo.uid);
-      pdfInfo.url = encodePdfUrl(pdfInfo.url);
-      handleBtn(btn, pdfInfo, hlInfo, highlight);
-    }
-  }
 
   document.body.addEventListener('click', e => {
     if (e.target.tagName === 'BUTTON' && isInactiveHighlightBtn(e.target)) {
