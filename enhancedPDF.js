@@ -250,16 +250,21 @@ function startC3PdfExtension() {
     }
   }
 
-  function activateSingleBtn(entries) {
-    entries.forEach(entry => {
-      const btn = entry.target;
-      if (isInactiveHighlightBtn(btn) && entry.intersectionRatio > 0.25) {
-        btn.addEventListener('click', activateBtnCallback, { once: true });
+  document.body.addEventListener('click', e => {
+    if (e.target.tagName === 'BUTTON' && isInactiveHighlightBtn(e.target)) {
+      const btn = e.target;
+      const hlInfo = getHlInfoFromBtn(btn);
+      const highlight = getSingleHighlight(hlInfo.uid);
+      let pdfInfo = getPdfInfoFromHighlight(hlInfo.uid);
+      if (pdfInfo) {
+        const btnBlock = btn.closest('.rm-block__input');
+        const page = btn.innerText;
+        addBreadcrumb(btnBlock, page, pdfInfo.uid);
+        pdfInfo.url = encodePdfUrl(pdfInfo.url);
+        handleBtn(btn, pdfInfo, hlInfo, highlight);
       }
-    });
-  }
-
-  hlBtnAppearsObserver = new IntersectionObserver(activateSingleBtn, options);
+    }
+  });
 
   /////////////////////////////////////////////////////////
   ///////////////Portal to the Data Page //////////////////
