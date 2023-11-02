@@ -72,6 +72,7 @@ function startC3PdfExtension() {
         adjustPdfIframe(iframe);
       }
     });
+    activateSortButtons();
   }
   ///////////////Responsive PDF Iframe
   function adjustPdfIframe(iframe) {
